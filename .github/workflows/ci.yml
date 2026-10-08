@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  check:
+    name: Форматирование, vet, сборка
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: gofmt
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "Файлы не отформатированы, запустите gofmt -w .:"
+            echo "$unformatted"
+            exit 1
+          fi
+      - run: go vet ./...
+      - run: go build ./...
+
+  exercises:
+    name: Тесты упражнений
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      # Нерешённые упражнения падают по задумке, поэтому шаг не роняет CI.
+      # Сводка по пакетам попадает на страницу запуска (Summary).
+      - name: go test -race
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          go test -race ./... 2>&1 | tee test.log
+      - name: Сводка
+        if: always()
+        run: |
+          {
+            echo "### Упражнения"
+            echo
+            echo "Решено пакетов: $(grep -c '^ok' test.log || true), осталось: $(grep -c '^FAIL[[:space:]]' test.log || true)"
+            echo
+            echo '```'
+            grep -E '^(ok|FAIL)[[:space:]]' test.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

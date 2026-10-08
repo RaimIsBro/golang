@@ -1,0 +1,28 @@
+# Бинарники
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/bin/
+/dist/
+
+# Результаты тестов и профили
+*.test
+*.out
+coverage.*
+*.prof
+
+# Локальное окружение
+.env
+.env.*
+!.env.example
+go.work
+go.work.sum
+
+# Редакторы и ОС
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
