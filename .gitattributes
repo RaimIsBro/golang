@@ -1,0 +1,4 @@
+# Go-файлы всегда с LF, иначе на Windows gofmt -l считает все файлы неотформатированными
+*.go text eol=lf
+go.mod text eol=lf
+go.sum text eol=lf
